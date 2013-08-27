@@ -1,13 +1,15 @@
 # flxcommon
 
-A Clojure library designed to ... well, that part is up to you.
+General purpose utility modules for Clojure.
 
 ## Usage
 
-FIXME
+The following functionality is available:
+
+* string utilities (interpolation)
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Aaron Evans
 
 Distributed under the Eclipse Public License, the same as Clojure.
