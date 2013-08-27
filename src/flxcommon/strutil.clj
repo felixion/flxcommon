@@ -16,18 +16,28 @@
         (= ["$" "{" "}"] [a b d])
         (cons (get params c) (lazy-seq (interpolate-next rest params)))
 
+        ;; escape out ::{foo} sequences
+        (= [":" ":" "{"] [a b c])
+        (cons ":{" (lazy-seq (interpolate-next (cons d rest) params)))
+
+        ;; perform substitution on :{foo}
+        (= [":" "{" "}"] [a b d])
+        (cons (get params (keyword c)) (lazy-seq (interpolate-next rest params)))
+
         ;; pass through arbitrary string with no tokens in it
-        :default
-        (cons a (lazy-seq (interpolate-next (concat [b c d] rest) params)))))))
+        :default (cons a (lazy-seq (interpolate-next (concat [b c d] rest) params)))))))
 
 (defn interpolate
-  "Performs keyword-value substitution in a string, by replacing all ${keyword} placeholders
-  with the value held by :keyword in a map.
+  "Performs interpolation on a string.  A sequence of named values is inserted over any placeholders are follows:
 
-  E.g., (interpolate \"test ${foo}\" :foo \"bar\") is \"test bar\".
+    ${name} is replaced with the value from \"name\"
+    :{name} is replaced with the value from :name
+    $${name} and ::{name} are not altered
+
+  Example:
+    (interpolate \"foo :{bar} test\" :bar \"baz\")
+    ;= \"foo baz test\"
   "
   [s & kwargs]
   (when (not (nil? s))
-    (apply str (interpolate-next (enumeration-seq (StringTokenizer. s "${}" true)) (apply hash-map kwargs)))))
-
-(interpolate "$$ test")
+    (apply str (interpolate-next (enumeration-seq (StringTokenizer. s "$:{}" true)) (apply hash-map kwargs)))))
